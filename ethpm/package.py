@@ -44,3 +44,17 @@ class Package(object):
     @property
     def version(self):
         return self.package_data['version']
+    
+    @property
+    def meta(self):
+        return self.package_data['meta']
+
+    @property
+    def sources(self):
+        return self.package_data['sources']
+
+    @property
+    def build_dependencies(self):
+        if 'build_dependencies' not in self.package_data:
+            return None
+        return self.package_data['build_dependencies']
