@@ -1,6 +1,3 @@
-import rlp
-import pytest
-import binascii
 import fnmatch
 import functools
 import hashlib
@@ -13,6 +10,7 @@ from cytoolz import (
 from eth_utils import (
   to_tuple
 )
+
 
 #
 # Filesystem fixture loading.
@@ -140,6 +138,7 @@ def generate_fixture_tests(metafunc,
         filtered_fixtures = filter_fn(preprocess_fn(all_fixtures))
 
         metafunc.parametrize('fixture_data', filtered_fixtures, ids=idfn)
+
 
 #
 # Fixture Normalizers

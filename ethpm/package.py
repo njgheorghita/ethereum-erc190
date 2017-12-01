@@ -68,7 +68,7 @@ class Package(object):
     @property
     def version(self):
         return self.package_data['version']
-    
+
     @property
     def meta(self):
         return self.package_data['meta']

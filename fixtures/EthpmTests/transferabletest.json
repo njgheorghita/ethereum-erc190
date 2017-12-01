@@ -1,8 +1,8 @@
 {
 	"test": {
-		"in": "./fixtures/lockfiles/transferable/1.0.0.json", 
+		"in": "./lockfiles/transferable/1.0.0.json", 
 		"out": {
-      "package_identifier": "./fixtures/lockfiles/transferable/1.0.0.json", 
+      "package_identifier": "./lockfiles/transferable/1.0.0.json", 
       "repr": "<bound method Package.__repr__ of <Package transferable==1.0.0>>",
       "lockfile_version": "1",
       "version": "1.0.0",

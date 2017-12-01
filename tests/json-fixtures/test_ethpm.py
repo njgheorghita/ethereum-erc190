@@ -27,6 +27,7 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture
 def fixture(fixture_data):
+    print(fixture_data)
     fixture_path, fixture_key = fixture_data
     fixture = load_fixture(
         fixture_path,
@@ -39,8 +40,9 @@ def fixture(fixture_data):
 def test_ethpm_fixtures(fixture):
     current_package = Package(fixture['in'])
     expected = fixture['out']
+    assert expected == 0
     assert str(current_package.__repr__) == expected['repr']
-    assert current_package.package_identifier == expected['package_identifier']
+    assert current_package.package_id == expected['package_identifier']
     assert current_package.name == expected['package_name']
     assert current_package.version == expected['version']
     assert current_package.meta == expected['meta']
