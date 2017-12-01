@@ -22,13 +22,6 @@ def invalid_package_id():
 
 
 @pytest.fixture()
-def w3():
-    eth_tester = EthereumTester()
-    w3 = Web3(EthereumTesterProvider(eth_tester))
-    return w3
-
-
-@pytest.fixture()
 def package(valid_package_id):
     return Package(valid_package_id)
 

@@ -1,5 +1,7 @@
 from ethpm.exceptions import ValidationError
 
+from ethpm.deployments import Deployments
+from ethpm.utils.chains import check_if_chain_matches_chain_uri
 from ethpm.utils.package_validation import (
     load_and_validate_package,
     validate_package_exists
@@ -68,3 +70,32 @@ class Package(object):
     @property
     def version(self):
         return self.package_data['version']
+
+    #
+    # Deployments
+    #
+
+    def get_deployments(self, w3):
+        """
+        TODO
+        """
+        # is there a deployments key
+        if "deployments" not in self.package_data:
+            raise ValidationError("No deployments key.")
+
+        all_blockchain_uris = self.package_data["deployments"].keys()
+        matching_uris = [
+            uri 
+            for uri
+            in all_blockchain_uris
+            if check_if_chain_matches_chain_uri(w3, uri)
+        ]
+
+        if not matching_uris:
+            raise ValidationError("no matching uris")
+        elif len(matching_uris) != 1:
+            raise ValidationError("too many uris (include uris and write test for this case)")
+
+        # pull out deployment data before checking for match
+        deployment_data = self.package_data["deployments"][matching_uris[0]]
+        return Deployments(deployment_data, w3)
