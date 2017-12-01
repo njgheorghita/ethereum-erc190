@@ -1,23 +1,13 @@
 import pytest
 
-from web3 import Web3
-from eth_tester import EthereumTester
 from ethpm.exceptions import ValidationError
-from web3.providers.eth_tester import EthereumTesterProvider
 
 from ethpm.utils.contract import (
   validate_minimal_contract_data_present,
   validate_contract_name,
   generate_contract_factory_kwargs,
-  validate_w3_instance
+  validate_w3_instance,
 )
-
-
-@pytest.fixture()
-def w3():
-    eth_tester = EthereumTester()
-    w3 = Web3(EthereumTesterProvider(eth_tester))
-    return w3
 
 
 @pytest.mark.parametrize(
