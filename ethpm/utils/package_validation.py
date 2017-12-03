@@ -1,18 +1,23 @@
 import json
 import os
 
-from ethpm import ASSETS_DIR
-from ethpm.exceptions import ValidationError
-
 from jsonschema import (
     validate,
     ValidationError as jsonValidationError
 )
 
+from ethpm import ASSETS_DIR
+
+from ethpm.exceptions import ValidationError
+
+
 RELEASE_LOCKFILE_SCHEMA_PATH = os.path.join(ASSETS_DIR, 'release-lockfile.schema.v1.json')
 
 
-def _load_package_data(package_id):
+def load_package_data(package_id):
+    """
+    Load package json located in ASSETS_DIR.
+    """
     with open(os.path.join(ASSETS_DIR, package_id)) as package:
         return json.load(package)
 
@@ -22,20 +27,42 @@ def _load_schema_data():
         return json.load(schema)
 
 
-def load_and_validate_package(package_id):
+def validate_package_against_schema(package_data):
     """
     Load and validate package json against schema
     located at RELEASE_LOCKFILE_SCHEMA_PATH.
     """
     schema_data = _load_schema_data()
-    package_data = _load_package_data(package_id)
     try:
         validate(package_data, schema_data)
     except jsonValidationError:
         raise ValidationError(
-            "Package:{0} invalid for schema:{1}".format(package_id, RELEASE_LOCKFILE_SCHEMA_PATH)
+            "Package:{0} invalid for schema:{1}".format(package_data, RELEASE_LOCKFILE_SCHEMA_PATH)
         )
-    return package_data
+
+
+def validate_package_deployments(package_data):
+    """
+    Validate that a package's deployments contracts reference existing contract_types.
+    """
+    if set(("contract_types", "deployments")).issubset(package_data):
+        all_contract_types = list(package_data["contract_types"].keys())
+
+        deployments = [
+            deployment
+            for uri, deployment
+            in package_data["deployments"].items()
+        ]
+        deployment_names = [
+            name
+            for name, value
+            in deployments[0].items()
+        ]
+
+        if not deployment_names <= all_contract_types:
+            raise ValidationError(
+                "Deployments:{0} do not reference existing contract types.".format(deployment_names)
+            )
 
 
 def validate_package_exists(package_id):
