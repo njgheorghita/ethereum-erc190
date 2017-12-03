@@ -3,9 +3,9 @@ import pytest
 from ethpm.exceptions import ValidationError
 
 from ethpm.utils.package_validation import (
+    load_package_data,
     validate_package_exists,
     validate_package_against_schema,
-    load_package_data,
     validate_package_deployments,
 )
 

@@ -1,15 +1,15 @@
 from ethpm.exceptions import ValidationError
 
 from ethpm.utils.package_validation import (
-    validate_package_against_schema,
     load_package_data,
+    validate_package_against_schema,
     validate_package_exists,
     validate_package_deployments,
 )
 from ethpm.utils.contract import (
+    generate_contract_factory_kwargs,
     validate_contract_name,
     validate_minimal_contract_data_present,
-    generate_contract_factory_kwargs,
     validate_w3_instance,
 )
 
