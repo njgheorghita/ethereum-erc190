@@ -1,7 +1,10 @@
 from ethpm.exceptions import ValidationError
 
 from ethpm.deployments import Deployments
-from ethpm.utils.chains import check_if_chain_matches_chain_uri
+
+from ethpm.utils.chains import (
+    check_if_chain_matches_chain_uri,
+)
 from ethpm.utils.package_validation import (
     load_package_data,
     validate_package_against_schema,
@@ -84,7 +87,6 @@ class Package(object):
         """
         TODO
         """
-        # is there a deployments key
         if "deployments" not in self.package_data:
             raise ValidationError("No deployments key.")
 

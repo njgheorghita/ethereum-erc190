@@ -1,13 +1,15 @@
 import json
 import os
 
-from ethpm import ASSETS_DIR
-from ethpm.exceptions import ValidationError
-
 from jsonschema import (
     validate,
     ValidationError as jsonValidationError
 )
+
+from ethpm import ASSETS_DIR
+
+from ethpm.exceptions import ValidationError
+
 
 RELEASE_LOCKFILE_SCHEMA_PATH = os.path.join(ASSETS_DIR, 'release-lockfile.schema.v1.json')
 
