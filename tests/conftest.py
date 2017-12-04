@@ -7,6 +7,11 @@ from eth_tester import (
     MockBackend,
 )
 
+from ethpm.utils.chains import (
+    get_chain_id,
+    create_block_uri,
+)
+
 from web3 import Web3
 from web3.providers.eth_tester import EthereumTesterProvider
 
@@ -47,8 +52,9 @@ LOCKFILE = {
   }
 }
 
+
 @pytest.fixture
-def lockfile_with_matching_deployments(tmpdir):
+def lockfile_with_no_matching_deployments(w3, tmpdir):
     f = tmpdir.join("lockfile.json")
     f.write(json.dumps(LOCKFILE))
     return str(f)
@@ -56,18 +62,22 @@ def lockfile_with_matching_deployments(tmpdir):
 
 @pytest.fixture
 def lockfile_with_no_deployments(tmpdir):
-    l = copy.deepcopy(LOCKFILE)
-    l.pop("deployments")
+    lockfile = copy.deepcopy(LOCKFILE)
+    lockfile.pop("deployments")
     f = tmpdir.join("lockfile.json")
-    f.write(json.dumps(l))
+    f.write(json.dumps(lockfile))
     return str(f)
 
 
 @pytest.fixture
-def lockfile_with_conflicting_deployments(tmpdir):
+def lockfile_with_matching_deployments(w3, tmpdir):
+    w3.testing.mine(5)
+    chain_id = get_chain_id(w3)
+    block = w3.eth.getBlock("earliest")
+    block_uri = create_block_uri(w3.toHex(chain_id), w3.toHex(block.hash))
     l = copy.deepcopy(LOCKFILE)
-    l["deployments"]["blockchain://41941023680923e0fe4d74a34bdac8141f2540e3ae90623718e47d66d1ca4a2d/block/1e96de11320c83cca02e8b9caf3e489497e8e432befe5379f2f08599f8aecede"] = {
-      "WrongNameLib": {
+    l["deployments"][block_uri] = {
+      "SafeMathLib": {
         "contract_type": "SafeMathLib",
         "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
         "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
@@ -76,4 +86,51 @@ def lockfile_with_conflicting_deployments(tmpdir):
     }
     f = tmpdir.join("lockfile.json")
     f.write(json.dumps(l))
+    return str(f)
+
+
+@pytest.fixture
+def lockfile_with_multiple_matches(w3, tmpdir):
+    w3.testing.mine(5)
+    chain_id = get_chain_id(w3)
+    block = w3.eth.getBlock("latest")
+    block_uri = create_block_uri(w3.toHex(chain_id), w3.toHex(block.hash))
+    w3.testing.mine(1)
+    second_block = w3.eth.getBlock("latest")
+    second_block_uri = create_block_uri(w3.toHex(chain_id), w3.toHex(second_block.hash))
+    l = copy.deepcopy(LOCKFILE)
+    l['deployments'][block_uri] = {
+        "SafeMathLib": {
+        "contract_type": "SafeMathLib",
+        "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
+        "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
+        "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c"
+      }
+    }
+    l['deployments'][second_block_uri] = {
+       "SafeMathLib": {
+        "contract_type": "SafeMathLib",
+        "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
+        "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
+        "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c"
+      }
+    }
+    f = tmpdir.join("lockfile.json")
+    f.write(json.dumps(l))
+    return str(f)
+
+
+@pytest.fixture
+def lockfile_with_conflicting_deployments(tmpdir):
+    lockfile = copy.deepcopy(LOCKFILE)
+    lockfile["deployments"]["blockchain://41941023680923e0fe4d74a34bdac8141f2540e3ae90623718e47d66d1ca4a2d/block/1e96de11320c83cca02e8b9caf3e489497e8e432befe5379f2f08599f8aecede"] = {
+      "WrongNameLib": {
+        "contract_type": "WrongNameLib",
+        "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
+        "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
+        "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c"
+      }
+    }
+    f = tmpdir.join("lockfile.json")
+    f.write(json.dumps(lockfile))
     return str(f)

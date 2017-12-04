@@ -7,6 +7,7 @@ from eth_utils import (
     add_0x_prefix,
     remove_0x_prefix,
     is_integer,
+    encode_hex,
 )
 
 
@@ -55,7 +56,8 @@ def is_BIP122_block_uri(value):
 def check_if_chain_matches_chain_uri(web3, blockchain_uri):
     chain_id, resource_type, resource_hash = parse_BIP122_uri(blockchain_uri)
     genesis_block = web3.eth.getBlock('earliest')
-    if genesis_block['hash'] != chain_id:
+
+    if encode_hex(genesis_block['hash']) != chain_id:
         return False
 
     if resource_type == BLOCK:
@@ -63,7 +65,7 @@ def check_if_chain_matches_chain_uri(web3, blockchain_uri):
     else:
         raise ValueError("Unsupported resource type: {0}".format(resource_type))
 
-    if resource['hash'] == resource_hash:
+    if encode_hex(resource['hash']) == resource_hash:
         return True
     else:
         return False

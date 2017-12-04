@@ -2,20 +2,20 @@ from ethpm.deployments import Deployments
 
 from ethpm.exceptions import ValidationError
 
-from ethpm.utils.chains import (
-    check_if_chain_matches_chain_uri,
+from ethpm.utils.contract import (
+    generate_contract_factory_kwargs,
+    validate_contract_name,
+    validate_minimal_contract_data_present,
+    validate_w3_instance,
+)
+from ethpm.utils.deployment_validation import (
+    validate_single_matching_uri,
 )
 from ethpm.utils.package_validation import (
     load_package_data,
     validate_package_against_schema,
     validate_package_exists,
     validate_package_deployments,
-)
-from ethpm.utils.contract import (
-    generate_contract_factory_kwargs,
-    validate_contract_name,
-    validate_minimal_contract_data_present,
-    validate_w3_instance,
 )
 
 
@@ -91,18 +91,8 @@ class Package(object):
             raise ValidationError("No deployments key.")
 
         all_blockchain_uris = self.package_data["deployments"].keys()
-        matching_uris = [
-            uri 
-            for uri
-            in all_blockchain_uris
-            if check_if_chain_matches_chain_uri(w3, uri)
-        ]
 
-        if not matching_uris:
-            raise ValidationError("no matching uris")
-        elif len(matching_uris) != 1:
-            raise ValidationError("too many uris (include uris and write test for this case)")
+        matching_uri = validate_single_matching_uri(all_blockchain_uris, w3)
 
-        # pull out deployment data before checking for match
-        deployment_data = self.package_data["deployments"][matching_uris[0]]
+        deployment_data = self.package_data["deployments"][matching_uri]
         return Deployments(deployment_data, w3)

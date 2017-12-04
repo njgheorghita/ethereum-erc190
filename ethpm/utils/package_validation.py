@@ -37,7 +37,7 @@ def validate_package_against_schema(package_data):
         validate(package_data, schema_data)
     except jsonValidationError:
         raise ValidationError(
-            "Package:{0} invalid for schema:{1}".format(0, RELEASE_LOCKFILE_SCHEMA_PATH)
+            "Package:{0} invalid for schema:{1}".format(package_data, RELEASE_LOCKFILE_SCHEMA_PATH)
         )
 
 
@@ -59,7 +59,7 @@ def validate_package_deployments(package_data):
             in deployments[0].items()
         ]
 
-        if not deployment_names == all_contract_types:
+        if not deployment_names <= all_contract_types:
             raise ValidationError(
                 "Deployments:{0} do not reference existing contract types.".format(deployment_names)
             )
