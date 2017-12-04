@@ -1,6 +1,6 @@
-from ethpm.exceptions import ValidationError
-
 from ethpm.deployments import Deployments
+
+from ethpm.exceptions import ValidationError
 
 from ethpm.utils.chains import (
     check_if_chain_matches_chain_uri,
