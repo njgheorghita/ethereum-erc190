@@ -64,5 +64,5 @@ def test_validate_w3_instance_validates(w3):
 
 @pytest.mark.parametrize("w3", ("NotWeb3", b"NotWeb3", 1234))
 def test_validate_w3_instance_invalidates(w3):
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         assert validate_w3_instance(w3)

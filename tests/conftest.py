@@ -70,6 +70,15 @@ def lockfile_with_no_deployments(tmpdir):
 
 
 @pytest.fixture
+def lockfile_with_empty_deployments(tmpdir):
+    lockfile = copy.deepcopy(LOCKFILE)
+    lockfile["deployments"] = {}
+    f = tmpdir.join("lockfile.json")
+    f.write(json.dumps(lockfile))
+    return str(f)
+
+
+@pytest.fixture
 def lockfile_with_matching_deployments(w3, tmpdir):
     w3.testing.mine(5)
     chain_id = get_chain_id(w3)

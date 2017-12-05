@@ -41,13 +41,18 @@ def validate_package_against_schema(package_data):
         )
 
 
+def validate_deployments_not_empty(deployments):
+    if not deployments:
+        raise ValidationError("ARHGHGHGH")
+
+
 def validate_package_deployments(package_data):
     """
     Validate that a package's deployments contracts reference existing contract_types.
     """
-    if set(("contract_types", "deployments")).issubset(package_data):
+    if set(("contract_types", "deployments")).issubset(package_data) and package_data["deployments"]:
         all_contract_types = list(package_data["contract_types"].keys())
-
+            
         deployments = [
             deployment
             for uri, deployment

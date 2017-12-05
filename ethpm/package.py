@@ -16,6 +16,7 @@ from ethpm.utils.package_validation import (
     validate_package_against_schema,
     validate_package_exists,
     validate_package_deployments,
+    validate_deployments_not_empty,
 )
 
 
@@ -87,12 +88,17 @@ class Package(object):
         """
         TODO
         """
+        validate_w3_instance(w3)
+
         if "deployments" not in self.package_data:
             raise ValidationError("No deployments key.")
-
+        validate_deployments_not_empty(self.package_data["deployments"])
         all_blockchain_uris = self.package_data["deployments"].keys()
 
         matching_uri = validate_single_matching_uri(all_blockchain_uris, w3)
 
         deployment_data = self.package_data["deployments"][matching_uri]
         return Deployments(deployment_data, w3)
+
+
+
