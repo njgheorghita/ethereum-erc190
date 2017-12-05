@@ -41,9 +41,11 @@ def validate_package_against_schema(package_data):
         )
 
 
-def validate_deployments_not_empty(deployments):
-    if not deployments:
-        raise ValidationError("ARHGHGHGH")
+def validate_deployments_are_present(package_data):
+    if "deployments" not in package_data:
+        raise ValidationError("No deployments key.")
+    if not package_data["deployments"]:
+        raise ValidationError("Deployments key is empty.")
 
 
 def validate_package_deployments(package_data):
