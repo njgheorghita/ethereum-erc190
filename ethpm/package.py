@@ -1,16 +1,22 @@
+from ethpm.deployments import Deployments
+
 from ethpm.exceptions import ValidationError
 
-from ethpm.deployments import Deployments
-from ethpm.utils.chains import check_if_chain_matches_chain_uri
-from ethpm.utils.package_validation import (
-    load_and_validate_package,
-    validate_package_exists
-)
 from ethpm.utils.contract import (
+    generate_contract_factory_kwargs,
     validate_contract_name,
     validate_minimal_contract_data_present,
-    generate_contract_factory_kwargs,
-    validate_w3_instance
+    validate_w3_instance,
+)
+from ethpm.utils.deployment_validation import (
+    validate_single_matching_uri,
+)
+from ethpm.utils.package_validation import (
+    load_package_data,
+    validate_package_against_schema,
+    validate_package_exists,
+    validate_package_deployments,
+    validate_deployments_are_present,
 )
 
 
@@ -27,8 +33,11 @@ class Package(object):
         self.package_id = package_id
 
         validate_package_exists(package_id)
-        valid_package_data = load_and_validate_package(package_id)
-        self.package_data = valid_package_data
+        package_data = load_package_data(package_id)
+        validate_package_against_schema(package_data)
+        validate_package_deployments(package_data)
+
+        self.package_data = package_data
 
     def set_default_w3(self, w3):
         """
@@ -77,25 +86,13 @@ class Package(object):
 
     def get_deployments(self, w3):
         """
-        TODO
+        API to retrieve instance of deployed contract dependency.
         """
-        # is there a deployments key
-        if "deployments" not in self.package_data:
-            raise ValidationError("No deployments key.")
+        validate_w3_instance(w3)
+        validate_deployments_are_present(self.package_data)
 
         all_blockchain_uris = self.package_data["deployments"].keys()
-        matching_uris = [
-            uri 
-            for uri
-            in all_blockchain_uris
-            if check_if_chain_matches_chain_uri(w3, uri)
-        ]
+        matching_uri = validate_single_matching_uri(all_blockchain_uris, w3)
 
-        if not matching_uris:
-            raise ValidationError("no matching uris")
-        elif len(matching_uris) != 1:
-            raise ValidationError("too many uris (include uris and write test for this case)")
-
-        # pull out deployment data before checking for match
-        deployment_data = self.package_data["deployments"][matching_uris[0]]
+        deployment_data = self.package_data["deployments"][matching_uri]
         return Deployments(deployment_data, w3)
