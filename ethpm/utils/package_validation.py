@@ -73,7 +73,7 @@ def validate_package_deployments(package_data):
 
 def validate_package_exists(package_id):
     """
-    Validate that package with package_id exists in ASSSETS_DIR
+    Validate that package with package_id exists in ASSSETS_DIR.
     """
     package_path = os.path.join(ASSETS_DIR, package_id)
     if not os.path.exists(package_path):
