@@ -1,10 +1,8 @@
 import pytest
 
-from web3 import Web3
-from eth_tester import EthereumTester
 from ethpm.package import Package
+
 from ethpm.exceptions import ValidationError
-from web3.providers.eth_tester import EthereumTesterProvider
 
 
 def test_ethpm_exists():
@@ -19,13 +17,6 @@ def valid_package_id():
 @pytest.fixture()
 def invalid_package_id():
     return "invalidLockfile.json"
-
-
-@pytest.fixture()
-def w3():
-    eth_tester = EthereumTester()
-    w3 = Web3(EthereumTesterProvider(eth_tester))
-    return w3
 
 
 @pytest.fixture()
@@ -90,12 +81,12 @@ def test_get_contract_type_with_default_web3(package, w3):
 
 @pytest.mark.parametrize("invalid_w3", ({"invalid": "w3"}))
 def test_get_contract_type_throws_with_invalid_web3(package, invalid_w3):
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         package.get_contract_type("Wallet", invalid_w3)
 
 
 def test_get_contract_type_without_default_web3(package):
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         assert package.get_contract_type("Wallet")
 
 

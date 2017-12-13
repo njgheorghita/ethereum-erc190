@@ -22,15 +22,17 @@ def validate_minimal_contract_data_present(contract_data):
         )
 
 
+CONTRACT_NAME_REGEX = re.compile("^[a-zA-Z][-a-zA-Z0-9_]{0,255}$")
+
+
 def validate_contract_name(name):
-    pattern = re.compile("^[a-zA-Z][-a-zA-Z0-9_]{0,255}$")
-    if not pattern.match(name):
+    if not CONTRACT_NAME_REGEX.match(name):
         raise ValidationError("Contract name: {0} is not valid.".format(name))
 
 
 def validate_w3_instance(w3):
     if w3 is None or not isinstance(w3, Web3):
-        raise ValidationError("Package does not have valid web3 instance.")
+        raise ValueError("Package does not have valid web3 instance.")
 
 
 @to_dict
