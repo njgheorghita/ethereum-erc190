@@ -93,7 +93,7 @@ class Package(object):
         if 'build_dependencies' not in self.package_data:
             return None
         return self.package_data['build_dependencies']
-    
+
     #
     # Deployments
     #

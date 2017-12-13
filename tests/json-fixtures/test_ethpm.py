@@ -40,7 +40,6 @@ def fixture(fixture_data):
 def test_ethpm_fixtures(fixture):
     current_package = Package(fixture['in'])
     expected = fixture['out']
-    assert expected == 0
     assert str(current_package.__repr__) == expected['repr']
     assert current_package.package_id == expected['package_identifier']
     assert current_package.name == expected['package_name']
