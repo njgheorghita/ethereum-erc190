@@ -56,7 +56,6 @@ def validate_package_deployments(package_data):
     """
     if set(("contract_types", "deployments")).issubset(package_data):
         all_contract_types = list(package_data["contract_types"].keys())
-
         all_deployments = list(package_data["deployments"].values())
         all_deployment_names = set(itertools.chain.from_iterable(
             deployment
@@ -69,6 +68,14 @@ def validate_package_deployments(package_data):
             raise ValidationError(
                     "Package missing references to contracts: {0}.".format(missing_contract_types)
             )
+
+
+def check_for_build_dependencies(valid_package_data):
+    """
+    Catch packages that rely on other packages
+    """
+    if valid_package_data.get('build_dependencies'):
+        raise NotImplementedError("Handling of package dependencies has not yet been implemented")
 
 
 def validate_package_exists(package_id):

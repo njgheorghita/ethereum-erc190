@@ -12,6 +12,7 @@ from ethpm.utils.deployment_validation import (
     validate_single_matching_uri,
 )
 from ethpm.utils.package_validation import (
+    check_for_build_dependencies,
     load_package_data,
     validate_package_against_schema,
     validate_package_exists,
@@ -36,6 +37,7 @@ class Package(object):
         package_data = load_package_data(package_id)
         validate_package_against_schema(package_data)
         validate_package_deployments(package_data)
+        check_for_build_dependencies(package_data)
 
         self.package_data = package_data
 
@@ -84,15 +86,27 @@ class Package(object):
     # Deployments
     #
 
-    def get_deployments(self, w3):
+    def get_deployments(self, w3=None):
         """
         API to retrieve instance of deployed contract dependency.
         """
+        if w3 is None:
+            w3 = self.w3
+
         validate_w3_instance(w3)
         validate_deployments_are_present(self.package_data)
 
         all_blockchain_uris = self.package_data["deployments"].keys()
         matching_uri = validate_single_matching_uri(all_blockchain_uris, w3)
 
-        deployment_data = self.package_data["deployments"][matching_uri]
-        return Deployments(deployment_data, w3)
+        deployments = self.package_data["deployments"][matching_uri]
+        all_contract_factories = {
+            deployment_data['contract_type']: self.get_contract_type(
+                deployment_data['contract_type'],
+                w3
+            )
+            for deployment_data
+            in deployments.values()
+        }
+
+        return Deployments(deployments, all_contract_factories, w3)

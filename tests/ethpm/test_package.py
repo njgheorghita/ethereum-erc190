@@ -1,5 +1,7 @@
 import pytest
 
+import web3
+
 from ethpm.package import Package
 
 from ethpm.exceptions import ValidationError
@@ -12,6 +14,16 @@ def test_ethpm_exists():
 @pytest.fixture()
 def valid_package_id():
     return "validLockfile.json"
+
+
+@pytest.fixture()
+def package_with_dependencies():
+    return "lockfileWithBuildDependencies.json"
+
+
+@pytest.fixture()
+def owned():
+    return "owned.json"
 
 
 @pytest.fixture()
@@ -28,7 +40,6 @@ def test_package_object_instantiates_with_valid_package_id(valid_package_id):
     current_package = Package(valid_package_id)
     assert current_package.package_id is valid_package_id
     assert current_package.w3 is None
-    assert current_package.package_data['build_dependencies']
     assert current_package.package_data['lockfile_version']
     assert current_package.package_data['deployments']
     assert current_package.package_data['contract_types']
@@ -64,19 +75,13 @@ def test_set_default_web3(valid_package_id, w3):
 
 def test_get_contract_type_with_unique_web3(package, w3):
     contract_factory = package.get_contract_type("Wallet", w3)
-    assert hasattr(contract_factory, 'address')
-    assert hasattr(contract_factory, 'abi')
-    assert hasattr(contract_factory, 'bytecode')
-    assert hasattr(contract_factory, 'bytecode_runtime')
+    assert getattr(contract_factory, '__module__') == web3.contract.__name__
 
 
 def test_get_contract_type_with_default_web3(package, w3):
     package.set_default_w3(w3)
     contract_factory = package.get_contract_type("Wallet")
-    assert hasattr(contract_factory, 'address')
-    assert hasattr(contract_factory, 'abi')
-    assert hasattr(contract_factory, 'bytecode')
-    assert hasattr(contract_factory, 'bytecode_runtime')
+    assert getattr(contract_factory, '__module__') == web3.contract.__name__
 
 
 @pytest.mark.parametrize("invalid_w3", ({"invalid": "w3"}))
@@ -108,3 +113,16 @@ def test_package_object_has_version_property(valid_package_id):
 def test_package_has_custom_str_repr(valid_package_id):
     current_package = Package(valid_package_id)
     assert current_package.__repr__() == "<Package wallet==1.0.0>"
+
+
+def test_package_cannot_be_initialized_with_build_dependencies(package_with_dependencies):
+    with pytest.raises(NotImplementedError):
+        Package(package_with_dependencies)
+    
+
+def test_package_can_be_initialized_with_empty_dependency_key(valid_package_id):
+    assert Package(valid_package_id)
+
+
+def test_package_without_build_dependencies_can_be_initialized(owned):
+    assert Package(owned)
