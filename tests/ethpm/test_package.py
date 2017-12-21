@@ -118,7 +118,7 @@ def test_package_has_custom_str_repr(valid_package_id):
 def test_package_cannot_be_initialized_with_build_dependencies(package_with_dependencies):
     with pytest.raises(NotImplementedError):
         Package(package_with_dependencies)
-    
+
 
 def test_package_can_be_initialized_with_empty_dependency_key(valid_package_id):
     assert Package(valid_package_id)
