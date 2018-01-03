@@ -1,6 +1,6 @@
 {
     "test": {
-	"in": "./lockfiles/owned/1.0.0.json", 
+	"in": "./ethpm/assets/lockfiles/owned/1.0.0.json", 
 	"out": {
 	    "package_identifier": "./lockfiles/owned/1.0.0.json", 
       	    "repr": "<bound method Package.__repr__ of <Package owned==1.0.0>>",

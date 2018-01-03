@@ -9,7 +9,7 @@ from ethpm.utils.fixture_tests import (
 )
 
 from ethpm.package import (
-    Package
+    Package,
 )
 
 ROOT_PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -27,7 +27,6 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture
 def fixture(fixture_data):
-    print(fixture_data)
     fixture_path, fixture_key = fixture_data
     fixture = load_fixture(
         fixture_path,
@@ -38,9 +37,8 @@ def fixture(fixture_data):
 
 
 def test_ethpm_fixtures(fixture):
-    current_package = Package(fixture['in'])
+    current_package = Package.from_file(fixture['in'])
     expected = fixture['out']
     assert str(current_package.__repr__) == expected['repr']
-    assert current_package.package_id == expected['package_identifier']
     assert current_package.name == expected['package_name']
     assert current_package.version == expected['version']
