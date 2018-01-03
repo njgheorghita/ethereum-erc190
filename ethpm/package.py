@@ -49,7 +49,7 @@ class Package(object):
 
         if not isinstance(package_data, dict):
             raise TypeError(
-                "Package object must be initialized with a dictionary. "
+                "Package object must be initialized with a dictionary."
                 "Got {0}".format(type(package_data))
             )
 
