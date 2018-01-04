@@ -20,6 +20,7 @@ lib
 lib64
 venv*
 .DS_Store
+.pytest_cache/
 
 # Installer logs
 pip-log.txt
