@@ -5,6 +5,8 @@ version: 2.0
 
 common: &common
   working_directory: ~/repo
+  environment:
+    SOLC_VERSION: v0.4.23
   steps:
     - checkout
     - run:
@@ -26,6 +28,19 @@ common: &common
     - run:
         name: install dependencies
         command: pip install --user tox
+    - run:
+        name: check for solc
+        command: |
+          if [[ -n "$SOLC_VERSION" ]]; then 
+            echo "$SOLC_VERSION"
+            sudo python -m pip install "py-solc>=1.2.0"
+            sudo python -m solc.install $SOLC_VERSION
+            export SOLC_BINARY="~/solc-$SOLC_VERSION/bin/solc"
+            echo $SOLC_BINARY
+            export LD_LIBRARY_PATH="~/solc-$SOLC_VERSION/bin"
+            echo $LD_LIBRARY_PATH
+            echo "$CIRCLE_WORKING_DIRECTORY"
+          fi
     - run:
         name: run tox
         command: ~/.local/bin/tox

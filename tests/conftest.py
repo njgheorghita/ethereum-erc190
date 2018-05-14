@@ -1,6 +1,7 @@
 import copy
 import json
 import pytest
+import random
 
 from eth_tester import (
     EthereumTester,
@@ -31,8 +32,8 @@ PACKAGE_NAMES = [
 
 @pytest.fixture()
 def w3():
-    eth_tester = EthereumTester(MockBackend())
-    w3 = Web3(EthereumTesterProvider(eth_tester))
+    w3 = Web3(EthereumTesterProvider())
+    w3.eth.defaultAccount = w3.eth.accounts[random.randint(0,9)]
     return w3
 
 
@@ -49,6 +50,13 @@ def all_packages():
         with open("ethpm/assets/v2-packages/%s/1.0.0.json" % pkg) as file_obj:
             all_packages.append(json.load(file_obj))
     return all_packages
+
+
+@pytest.fixture
+def valid_package_and_contract(valid_package):
+    with open("ethpm/assets/v2-packages/safe-math-lib/SafeMathLib.sol") as file:
+        contract_source_code = file.read()
+    return valid_package, contract_source_code
 
 
 @pytest.fixture()
