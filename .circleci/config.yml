@@ -29,17 +29,15 @@ common: &common
         name: install dependencies
         command: pip install --user tox
     - run:
-        name: check for solc
+        name: install solc
         command: |
           if [[ -n "$SOLC_VERSION" ]]; then 
-            echo "$SOLC_VERSION"
-            sudo python -m pip install "py-solc>=1.2.0"
-            sudo python -m solc.install $SOLC_VERSION
-            export SOLC_BINARY="~/solc-$SOLC_VERSION/bin/solc"
-            echo $SOLC_BINARY
-            export LD_LIBRARY_PATH="~/solc-$SOLC_VERSION/bin"
-            echo $LD_LIBRARY_PATH
-            echo "$CIRCLE_WORKING_DIRECTORY"
+            sudo python3 -m pip install -U "py-solc>=1.2.0"
+            sudo python3 -m solc.install $SOLC_VERSION
+            echo 'export SOLC_BINARY=/root/.py-solc/solc-$SOLC_VERSION/bin/solc' >> $BASH_ENV
+            echo 'export LD_LIBRARY_PATH=/root/.py-solc/solc-$SOLC_VERSION/bin' >> $BASH_ENV
+            source $BASH_ENV
+            sudo chmod -R 777 /root
           fi
     - run:
         name: run tox
