@@ -3,11 +3,6 @@ import json
 import pytest
 import random
 
-from eth_tester import (
-    EthereumTester,
-    MockBackend,
-)
-
 from web3 import Web3
 
 from web3.providers.eth_tester import EthereumTesterProvider
