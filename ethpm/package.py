@@ -6,9 +6,7 @@ from typing import (
 from web3.eth import (
     Contract,
 )
-from web3.main import (
-    Web3,
-)
+from web3 import Web3
 
 from ethpm.deployments import (
     Deployments,
