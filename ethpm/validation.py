@@ -15,7 +15,7 @@ def validate_package_name(pkg_name: str) -> None:
     as defined in the EthPM-Spec.
     """
     if not bool(re.match(PACKAGE_NAME_REGEX, pkg_name)):
-        raise UriNotSupportedError("{0} is not a valid package name.".format(pkg_name))
+        raise ValidationError("{0} is not a valid package name.".format(pkg_name))
 
 
 def validate_ipfs_uri(uri: str) -> None:
