@@ -61,6 +61,7 @@ setup(
         'eth-utils>=1.0.2,<2',
         'ipfsapi>=0.4.3,<1',
         'jsonschema>=2.6.0,<3',
+        "protobuf>=3.0.0",
         'py-solc>=2.1.0,<3',
         'rlp>=1.0.1,<2',
         'web3>=4.2.1,<5',
