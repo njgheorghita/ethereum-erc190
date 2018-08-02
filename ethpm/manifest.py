@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 
 class Manifest:
@@ -12,3 +13,12 @@ class Manifest:
 
     def minified(self) -> str:
         return json.dumps(self.__dict__, separators=(",", ":"), sort_keys=True)
+
+
+def create_manifest_from_dir(path_to_json, manifest_version, package_name, version):
+    solc_output = Path(path_to_json)
+    manifest = Manifest(manifest_version, package_name, version)
+    with open(solc_output) as f:
+        json_data = json.load(f)
+    manifest.source = json_data
+    return manifest

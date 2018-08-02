@@ -1,0 +1,22 @@
+{
+  "language": "Solidity",
+  "sources":
+  {
+    "StandardToken.sol":
+    {
+      "urls":
+      [
+        "./AbstractToken.sol",
+        "./StandardToken.sol"
+      ]
+    }
+  },
+  "settings": 
+  {
+    "outputSelection": {
+      "*": {
+        "*": [ "metadata", "evm.bytecode" ]
+    }
+  }
+  }
+}
