@@ -6,6 +6,10 @@ from ethpm.pb.ipfs_file_pb2 import Data, PBNode
 from ethpm.utils.base58 import b58encode
 
 
+def create_ipfs_uri(ipfs_hash: str) -> str:
+    return "ipfs://{0}".format(ipfs_hash)
+
+
 def extract_ipfs_path_from_uri(value: str) -> str:
     """
     Return the path from an IPFS URI.
