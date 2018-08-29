@@ -61,7 +61,7 @@ class LinkableContract(Contract):
     def link_bytecode(cls, attr_dict: Dict[str, str]) -> Type["LinkableContract"]:
 
         """
-        Return a cloned contract factory with the deploymeny / runtime bytecode linked.
+        Return a cloned contract factory with the deployment / runtime bytecode linked.
 
         :attr_dict: Dict[`ContractType`: `Address`] for all deployment and runtime link references.
         """

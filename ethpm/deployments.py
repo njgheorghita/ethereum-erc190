@@ -1,8 +1,8 @@
 from typing import Dict, ItemsView, List
 
 from eth_utils import to_canonical_address
+from web3 import Web3
 from web3.eth import Contract
-from web3.main import Web3
 
 from ethpm.exceptions import ValidationError
 from ethpm.utils.contract import validate_contract_name
@@ -42,7 +42,7 @@ class Deployments:
         values = [self.get(name) for name in self.deployment_data]
         return values
 
-    def get_contract_instance(self, contract_name: str) -> None:
+    def get_deployment_instance(self, contract_name: str) -> None:
         """
         Fetches a contract instance belonging to deployment
         after validating contract name.
