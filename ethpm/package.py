@@ -1,6 +1,7 @@
 import json
 from typing import Any, Dict
 
+from eth_typing import ContractName
 from eth_utils import to_canonical_address, to_text
 from web3 import Web3
 from web3.eth import Contract
@@ -13,7 +14,7 @@ from ethpm.exceptions import (
     InsufficientAssetsError,
     PyEthPMError,
 )
-from ethpm.typing import Address, ContractName
+from ethpm.typing import Address
 from ethpm.utils.backend import resolve_uri_contents
 from ethpm.utils.cache import cached_property
 from ethpm.utils.contract import (
