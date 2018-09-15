@@ -14,13 +14,13 @@ class LinkableContract(Contract):
     A subclass of web3.contract.Contract that is capable of handling
     contract factories with link references in their package's manifest.
     """
-
+    # more accurate support of pre-linked libraries
     deployment_link_refs = []  # type: List[Dict[str, Any]]
     runtime_link_refs = []  # type: List[Dict[str, Any]]
     is_bytecode_linked = False
 
     def __init__(self, address: bytes = None, **kwargs: Dict[str, Any]) -> None:
-        if self.has_linkable_bytecode() and not self.is_bytecode_linked:
+        if self.needs_bytecode_linking():
             raise BytecodeLinkingError(
                 "Contract cannot be instantiated until its bytecode is linked."
             )
@@ -31,11 +31,23 @@ class LinkableContract(Contract):
 
     @classmethod
     def constructor(self, *args: Any, **kwargs: Any) -> bool:
-        if self.has_linkable_bytecode() and not self.is_bytecode_linked:
+        if self.needs_bytecode_linking():
             raise BytecodeLinkingError(
                 "Contract cannot be deployed until its bytecode is linked."
             )
         return super(LinkableContract, self).constructor(*args, **kwargs)
+
+    @classmethod
+    def needs_bytecode_linking(self) -> bool:
+        if not self.has_linkable_bytecode():
+            return False
+        if not self.deployment_link_refs:
+            return False
+        if self.is_bytecode_linked:
+            return False
+        if is_prelinked_bytecode(self.bytecode, self.deployment_link_refs):
+            return False
+        return True
 
     @combomethod
     def has_linkable_bytecode(self) -> bool:
@@ -104,6 +116,17 @@ class LinkableContract(Contract):
                     "a valid canoncial address.".format(address)
                 )
 
+
+def is_prelinked_bytecode(bytecode, link_refs) -> bool:
+    # todo support partially pre-linked bytecode (right now it's all or nothing)
+    # todo bytecode validation against an expected address
+    for link_ref in link_refs:
+        for offset in link_ref['offsets']:
+            try:
+                validate_empty_bytes(offset, link_ref['length'], bytecode)
+            except ValidationError:
+                return True
+    return False
 
 def apply_all_link_references(
     bytecode: bytes, link_refs: List[Dict[str, Any]], attr_dict: Dict[str, str]
