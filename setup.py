@@ -21,8 +21,8 @@ extras_require={
     ],
     'lint': [
         'black>=19.3b0,<20',
-        'isort>=4.3.17,<5',   
         'flake8>=3.7.0,<4',
+        'isort>=4.3.17,<5',   
         'mypy<0.800',
     ],
     'doc': [
