@@ -1,16 +1,16 @@
 import base64
 import json
 
+from eth_typing import URI
 import requests
 
-from ethpm.backends.base import BaseURIBackend
-from ethpm.constants import GITHUB_API_AUTHORITY
-from ethpm.exceptions import CannotHandleURI
-from ethpm.typing import URI
-from ethpm.utils.uri import (
+from ethpm._utils.uri import (
     is_valid_content_addressed_github_uri,
     validate_blob_uri_contents,
 )
+from ethpm.backends.base import BaseURIBackend
+from ethpm.constants import GITHUB_API_AUTHORITY
+from ethpm.exceptions import CannotHandleURI
 
 
 class GithubOverHTTPSBackend(BaseURIBackend):

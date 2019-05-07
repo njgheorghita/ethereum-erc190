@@ -1,12 +1,12 @@
 import pytest
 
-from ethpm.exceptions import ValidationError
-from ethpm.utils.uri import (
+from ethpm._utils.uri import (
     create_content_addressed_github_uri,
     is_valid_api_github_uri,
     is_valid_content_addressed_github_uri,
     parse_registry_uri,
 )
+from ethpm.exceptions import ValidationError
 
 
 @pytest.mark.parametrize(

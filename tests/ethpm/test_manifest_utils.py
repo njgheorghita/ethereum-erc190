@@ -1,7 +1,7 @@
 import pytest
 
+from ethpm._utils.manifest_validation import validate_meta_object
 from ethpm.exceptions import ValidationError
-from ethpm.utils.manifest_validation import validate_meta_object
 
 
 @pytest.mark.parametrize(

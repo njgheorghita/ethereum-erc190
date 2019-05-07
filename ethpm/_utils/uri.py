@@ -4,13 +4,13 @@ import json
 from typing import Tuple
 from urllib import parse
 
+from eth_typing import URI
 from eth_utils import is_text, to_bytes, to_text
 import requests
 
+from ethpm._utils.ipfs import is_ipfs_uri
 from ethpm.constants import GITHUB_API_AUTHORITY
 from ethpm.exceptions import CannotHandleURI, ValidationError
-from ethpm.typing import URI
-from ethpm.utils.ipfs import is_ipfs_uri
 from ethpm.validation import validate_registry_uri
 
 RegistryURI = namedtuple("RegistryURI", ["auth", "name", "version"])

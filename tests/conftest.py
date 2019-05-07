@@ -7,12 +7,12 @@ from pytest_ethereum import linker as l  # noqa: E741
 from web3 import Web3
 
 from ethpm import ASSETS_DIR, V2_PACKAGES_DIR, Package
-from ethpm.tools import get_manifest as get_manifest_tool
-from ethpm.utils.chains import (
+from ethpm._utils.chains import (
     create_block_uri,
     create_latest_block_uri,
     get_genesis_block_hash,
 )
+from ethpm.tools import get_manifest as get_manifest_tool
 
 pytest_plugins = ["pytest_ethereum.plugins"]
 
