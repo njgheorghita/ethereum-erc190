@@ -2,81 +2,91 @@
 # -*- coding: utf-8 -*-
 import os
 
-from setuptools import (
-    setup,
-    find_packages,
-)
+from setuptools.command.develop import develop as _develop
+from setuptools import setup, find_packages
+from subprocess import check_call
 
 
 DIR = os.path.dirname(os.path.abspath(__file__))
+readme = open(os.path.join(DIR, "README.md")).read()
+WEB3_VERSION = "5.0.0b2,<6.0.0"
 
 
-readme = open(os.path.join(DIR, 'README.md')).read()
+class develop(_develop):
+    """
+    Post-installation to make sure web3 tester extras are installed.
+    """
 
-extras_require={
-    'test': [
-        'pytest>=3.2.1,<4',
-        'pytest-ethereum>=0.1.3a.6,<1',
-        'tox>=1.8.0,<2',
+    def run(self):
+        _develop.run(self)
+        check_call(["pip", "install", f"web3[tester]>={WEB3_VERSION}"])
+
+
+extras_require = {
+    "test": [
+        "pytest>=4.4.0,<5",
+        "pytest-ethereum>=0.1.3a.6,<1",
+        "tox>=1.8.0,<2"
     ],
-    'lint': [
-        'black>=19.3b0,<20',
-        'isort>=4.3.17,<5',   
-        'flake8>=3.7.0,<4',
-        'mypy<0.800',
+    "lint": [
+        "black>=19.3b0,<20",
+        "isort>=4.3.17,<5",
+        "flake8>=3.7.0,<4",
+        "mypy<0.800"
     ],
-    'doc': [
-        'Sphinx>=1.5.5,<2',
-        'sphinx_rtd_theme>=0.1.9,<2',
+    "doc": [
+        "Sphinx>=1.5.5,<2",
+        "sphinx_rtd_theme>=0.1.9,<2"
     ],
-    'dev': [
-        'bumpversion>=0.5.3,<1',
-        'ipython>=7.2.0,<8',
-        'pytest-watch>=4.1.0,<5',
-        'twine',
-        'wheel',
+    "dev": [
+        "bumpversion>=0.5.3,<1",
+        "ipython>=7.2.0,<8",
+        "pytest-watch>=4.1.0,<5",
+        "twine",
+        "wheel",
     ],
 }
 
-extras_require['dev'] = (
-    extras_require['dev']
-    + extras_require['test']
-    + extras_require['lint']
-    + extras_require['doc']
+extras_require["dev"] = (
+    extras_require["dev"]
+    + extras_require["test"]
+    + extras_require["lint"]
+    + extras_require["doc"]
 )
 
 setup(
-    name='ethpm',
+    name="ethpm",
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='0.1.4-alpha.19',
+    version="0.1.4-alpha.19",
     description="""Python abstraction for ERC190 packages.""",
-    long_description_markdown_filename='README.md',
-    author='Piper Merriam',
-    author_email='pipermerriam@gmail.com',
-    url='https://github.com/ethpm/py-ethpm',
+    long_description_markdown_filename="README.md",
+    author="Piper Merriam",
+    author_email="pipermerriam@gmail.com",
+    url="https://github.com/ethpm/py-ethpm",
     include_package_data=True,
     install_requires=[
-        'eth-utils>=1.6.0,<2',
-        'ipfshttpclient>=0.4.12,<1',
-        'jsonschema>=2.6.0,<3',
-        'protobuf>=3.0.0,<4',
-        'rlp>=1.0.1,<2',
-        'web3[tester]>=5.0.0b1,<6',
+        "eth-utils>=1.6.0,<2",
+        "ipfshttpclient>=0.4.12,<1",
+        "jsonschema>=2.6.0,<3",
+        "protobuf>=3.0.0,<4",
+        "rlp>=1.0.1,<2",
+        f"web3>={WEB3_VERSION}",
     ],
-    setup_requires=['setuptools-markdown'],
-    python_requires='>=3.6, <4',
+    setup_requires=["setuptools-markdown"],
+    python_requires=">=3.6, <4",
     extras_require=extras_require,
-    py_modules=['ethpm'],
-    license='MIT',
+    cmdclass={"develop": develop},
+    py_modules=["ethpm"],
+    license="MIT",
     zip_safe=False,
-    keywords='ethereum',
-    packages=find_packages(exclude=['tests', 'tests.*']),
+    keywords="ethereum",
+    packages=find_packages(exclude=["tests", "tests.*"]),
     classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
     ],
 )
