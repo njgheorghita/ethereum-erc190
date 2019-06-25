@@ -1,4 +1,5 @@
 from pathlib import Path
+from ethpm.utils.ipfs import generate_links
 
 import pytest
 
@@ -115,3 +116,32 @@ def test_generate_file_hash(tmpdir, file_name, file_contents, expected):
     p.write(file_contents)
     ipfs_multihash = generate_file_hash(Path(p).read_bytes())
     assert ipfs_multihash == expected
+
+
+def test_generate_file_hash_for_large_files(tmp_path):
+    expected_links = (
+        (b'QmZ5RgT3jJhRNMEgLSEsez9uz1oDnNeAysLLxRco8jz5Be', 262158),
+        (b'QmUZvm5TertyZagJfoaw5E5DRvH6Ssu4Wsdfw69NHaNRTc', 262158),
+        (b'QmTA3tDxTZn5DGaDshGTu9XHon3kcRt17dgyoomwbJkxvJ', 262158),
+        (b'QmXRkS2AtimY2gujGJDXjSSkpt2Xmgog6FjtmEzt2PwcsA', 262158),
+        (b'QmVuqvYLEo76hJVE9c5h9KP2MbQuTxSFyntV22qdz6F1Dr', 262158),
+        (b'QmbsEhRqFwKAUoc6ivZyPa1vGUxFKBT4ciH79gVszPcFEG', 262158),
+        (b'QmegS44oDgNU2hnD3j8r1WH8xZ2RWfe3Z5eb6aJRHXwJsw', 262158),
+        (b'QmbC1ZyGUoxZrmTTjgmiB3KSRRXJFkhpnyKYkiVC6PUMzf', 262158),
+        (b'QmZvpEyzP7C8BABesRvpYWPec2HGuzgnTg4VSPiTpQWGpy', 262158),
+        (b'QmZhzU2QJF4rUpRSWZxjutWz22CpFELmcNXkGAB1GVb26H', 262158),
+        (b'QmZeXvgS1NTxtVv9AeHMpA9oGCRrnVTa9bSCSDgAt52iyT', 262158),
+        (b'QmPy1wpe1mACVrXRBtyxriT2T5AffZ1SUkE7xxnAHo4Dvs', 262158),
+        (b'QmcHbhgwAVddCyFVigt2DLSg8FGaQ1GLqkyy5M3U5DvTc6', 262158),
+        (b'QmNsx32qEiEcHRL1TFcy2bPvwqjHZGp62mbcVa9FUpY9Z5', 262158),
+        (b'QmVx2NfXEvHaS8uaRTYaF4ExeLaCSGpTSDhhYBEAembdbk', 69716),
+    )
+    expected_root_hash = 'QmQgQUbBeMTnH1j3QWwNw9LkXjpWDJrjyGYfZpnPp8x5Lu'
+    test = Path(__file__).parent / 'pic.jpg'
+    ipfs_multihash = generate_links(test.read_bytes())
+    hashes = [(x.Hash, x.Tsize) for x in ipfs_multihash]
+    for x in expected_links:
+        assert x in hashes
+    # test works until here, where it has to calculate the root hash
+    root_hash = generate_file_hash(test.read_bytes())
+    assert root_hash == expected_root_hash

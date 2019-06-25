@@ -1,4 +1,6 @@
 import hashlib
+import json
+from eth_utils import to_list, to_text, to_bytes
 from pathlib import Path
 from typing import Dict
 from urllib import parse
@@ -7,7 +9,13 @@ from base58 import b58encode
 from eth_utils import to_text
 from google.protobuf.descriptor import Descriptor
 
-from ethpm.utils.protobuf.ipfs_file_pb2 import Data, PBNode
+from ethpm._utils.protobuf.ipfs_file_pb2 import Data, PBNode
+from ethpm._utils.protobuf.unixfs_pb2 import Data as uData
+from ethpm._utils.protobuf.unixfs_pb2 import Metadata as uMetadata
+from ethpm._utils.protobuf.merkledag_pb2 import PBNode as uPBNode
+from ethpm._utils.protobuf.merkledag_pb2 import PBLink as uPBLink
+from ethpm.constants import IPFS_CHUNK_SIZE
+from ethpm.exceptions import FailureToFetchIPFSAssetsError
 
 
 def dummy_ipfs_pin(path: Path) -> Dict[str, str]:
@@ -89,8 +97,45 @@ def serialize_bytes(file_bytes: bytes) -> Descriptor:
 
 
 def generate_file_hash(content_bytes: bytes) -> str:
-    file_protobuf: Descriptor = serialize_bytes(content_bytes)
+    # test edge cases on filesizes once working
+    if len(content_bytes) <= IPFS_CHUNK_SIZE:
+        file_protobuf: Descriptor = serialize_bytes(content_bytes)
+    else:
+        file_protobuf: Descriptor = serialize_chunks(content_bytes)
     # type ignored b/c SerializeToString is manually attached in ipfs_file_pb2.py
     file_protobuf_bytes = file_protobuf.SerializeToString()  # type: ignore
     file_multihash = multihash(file_protobuf_bytes)
     return to_text(b58encode(file_multihash))
+
+
+def serialize_chunks(file_bytes: bytes) -> Descriptor:
+    file_size = len(file_bytes)
+    links = generate_links(file_bytes)
+    data_protobuf = uData(
+        Type=uData.DataType.Value("File"),
+        Data=b'',
+        filesize=file_size,
+    )
+    data_protobuf_bytes = data_protobuf.SerializeToString()
+    file_protobuf = uPBNode(Links=links, Data=data_protobuf_bytes)
+    return file_protobuf
+
+
+def generate_links(content_bytes):
+    if len(content_bytes) < IPFS_CHUNK_SIZE:
+        raise FailureToFetchIPFSAssetsError(
+            f"Chunk size: {len(content_bytes)} bytes. Unable to generate merkle dag link for "
+            f"a chunk smaller than {IPFS_CHUNK_SIZE} bytes."
+        )
+    links = [
+        gen_single_link(content_bytes, i)
+        for i in range(0, len(content_bytes), IPFS_CHUNK_SIZE)
+    ]
+    return links
+
+
+def gen_single_link(content_bytes, i):
+    chunk = content_bytes[i : i + IPFS_CHUNK_SIZE]
+    chunk_hash = generate_file_hash(chunk)
+    # not sure why adding 14 is necessary, but is required to make links match ls output size
+    return uPBLink(Hash=to_bytes(text=chunk_hash), Name="", Tsize=len(chunk) + 14)
