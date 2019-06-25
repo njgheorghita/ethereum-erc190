@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from eth_typing import URI
 from web3 import Web3
@@ -6,6 +7,7 @@ from web3.providers.auto import load_provider_from_uri
 
 from ethpm.backends.base import BaseURIBackend
 from ethpm.constants import INFURA_API_KEY
+from ethpm.exceptions import CannotHandleURI
 from ethpm.utils.registry import fetch_standard_registry_abi
 from ethpm.utils.uri import parse_registry_uri
 from ethpm.validation import is_valid_registry_uri
@@ -41,3 +43,9 @@ class RegistryURIBackend(BaseURIBackend):
         self.w3.pm.set_registry(address)
         _, _, manifest_uri = self.w3.pm.get_release_data(pkg_name, pkg_version)
         return manifest_uri
+
+    def write_to_disk(self, uri: str, target_path: Path) -> None:
+        raise CannotHandleURI(
+            "Registry backends are not allowed to write resolved uris to disk. "
+            "Please use a different backend."
+        )

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Union
 
 from eth_typing import URI
@@ -32,5 +33,13 @@ class BaseURIBackend(ABC):
     def fetch_uri_contents(self, uri: URI) -> Union[bytes, URI]:
         """
         Fetch the contents stored at a URI.
+        """
+        pass
+
+    @abstractmethod
+    def write_to_disk(self, uri: URI, target_path: Path) -> None:
+        """
+        Writes the contents of target URI to target path.
+        Raises exception if target path exists.
         """
         pass

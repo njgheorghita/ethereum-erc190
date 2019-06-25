@@ -1,8 +1,11 @@
 from abc import abstractmethod
 import os
 from pathlib import Path
+import shutil
+import tempfile
 from typing import Dict, List, Type
 
+from eth_typing import URI
 from eth_utils import import_string, to_bytes
 import ipfshttpclient
 
@@ -49,6 +52,18 @@ class BaseIPFSBackend(BaseURIBackend):
         """
         pass
 
+    def write_to_disk(self, uri: URI, target_path: Path) -> None:
+        contents = self.fetch_uri_contents(uri)
+        if target_path.exists():
+            raise CannotHandleURI(
+                f"IPFS uri: {uri} cannot be written to disk since target path ({target_path}) "
+                "already exists. Please provide a target_path that does not exist."
+            )
+        with tempfile.NamedTemporaryFile() as temp:
+            temp.write(contents)
+            temp.seek(0)
+            shutil.copyfile(temp.name, target_path)
+
 
 class IPFSOverHTTPBackend(BaseIPFSBackend):
     """
@@ -59,7 +74,7 @@ class IPFSOverHTTPBackend(BaseIPFSBackend):
     def __init__(self) -> None:
         self.client = ipfshttpclient.connect(self.base_uri)
 
-    def fetch_uri_contents(self, uri: str) -> bytes:
+    def fetch_uri_contents(self, uri: URI) -> bytes:
         ipfs_hash = extract_ipfs_path_from_uri(uri)
         contents = self.client.cat(ipfs_hash)
         validation_hash = generate_file_hash(contents)
@@ -104,6 +119,11 @@ class IPFSGatewayBackend(IPFSOverHTTPBackend):
         )
 
     def fetch_uri_contents(self, uri: str) -> bytes:
+        raise CannotHandleURI(
+            "IPFS gateway is currently disabled, please use a different IPFS backend."
+        )
+
+    def write_to_disk(self, uri: URI, target_path: Path) -> None:
         raise CannotHandleURI(
             "IPFS gateway is currently disabled, please use a different IPFS backend."
         )

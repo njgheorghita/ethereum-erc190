@@ -13,6 +13,7 @@ from ethpm.backends.ipfs import (
     get_ipfs_backend_class,
 )
 from ethpm.constants import INFURA_GATEWAY_MULTIADDR
+from ethpm.exceptions import CannotHandleURI
 
 OWNED_MANIFEST_PATH = V2_PACKAGES_DIR / "owned" / "1.0.0.json"
 
@@ -116,3 +117,20 @@ def test_pin_assets_to_dummy_backend(dummy_ipfs_backend):
     assert "StandardToken.sol" in dir_names
     assert "QmRJHLmPVct2rbBpdGjP3xkXbF7romQigtmcs8TRfV1yC7" in dir_hashes
     assert "2865" in dir_sizes
+
+
+def test_ipfs_backend_write_to_disk(tmp_path):
+    ipfs_uri = "ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGV"
+    backend = LocalIPFSBackend()
+    contents = backend.fetch_uri_contents(ipfs_uri)
+    target_path = tmp_path / "ipfs_uri.txt"
+    backend.write_to_disk(ipfs_uri, target_path)
+    assert target_path.read_bytes() == contents
+
+
+def test_ipfs_backend_write_to_disk_raises_exception_if_target_exists(tmp_path):
+    ipfs_uri = "ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGV"
+    target_path = tmp_path / "test.txt"
+    target_path.touch()
+    with pytest.raises(CannotHandleURI, match="cannot be written to disk."):
+        LocalIPFSBackend().write_to_disk(ipfs_uri, target_path)
