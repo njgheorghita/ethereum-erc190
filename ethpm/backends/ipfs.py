@@ -96,16 +96,11 @@ class IPFSGatewayBackend(IPFSOverHTTPBackend):
     # https://discuss.ipfs.io/t/writeable-http-gateways/210
     @property
     def base_uri(self) -> str:
-        return IPFS_GATEWAY_PREFIX
+        return "/dns4/ipfs.io/tcp/443/https"
 
     def pin_assets(self, file_or_dir_path: Path) -> List[Dict[str, str]]:
         raise CannotHandleURI(
-            "IPFS gateway is currently disabled, please use a different IPFS backend."
-        )
-
-    def fetch_uri_contents(self, uri: str) -> bytes:
-        raise CannotHandleURI(
-            "IPFS gateway is currently disabled, please use a different IPFS backend."
+            "IPFS gateway does not allow pinning assets, please use a different IPFS backend."
         )
 
 

@@ -10,6 +10,7 @@ from ethpm.backends.http import GithubOverHTTPSBackend
 from ethpm.backends.ipfs import (
     DummyIPFSBackend,
     InfuraIPFSBackend,
+    IPFSGatewayBackend,
     LocalIPFSBackend,
     get_ipfs_backend_class,
 )
@@ -18,6 +19,7 @@ from ethpm.exceptions import CannotHandleURI
 
 URI_BACKENDS = [
     InfuraIPFSBackend,
+    IPFSGatewayBackend,
     DummyIPFSBackend,
     LocalIPFSBackend,
     GithubOverHTTPSBackend,
@@ -27,6 +29,7 @@ URI_BACKENDS = [
 logger = logging.getLogger("ethpm.utils.backend")
 
 
+# default_backend = None
 def resolve_uri_contents(uri: URI, fingerprint: bool = None) -> bytes:
     resolvable_backends = get_resolvable_backends_for_uri(uri)
     if resolvable_backends:
