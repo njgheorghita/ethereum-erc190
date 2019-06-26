@@ -34,3 +34,30 @@ class BaseURIBackend(ABC):
         Fetch the contents stored at a URI.
         """
         pass
+
+
+class AsyncBaseURIBackend(ABC):
+    @abstractmethod
+    def can_resolve_uri(self, uri: URI) -> bool:
+        """
+        Return a bool indicating whether this backend class can
+        resolve the given URI to it's contents.
+        """
+        pass
+
+    @abstractmethod
+    def can_translate_uri(self, uri: URI) -> bool:
+        """
+        Return a bool indicating whether this backend class can
+        translate the given URI to a corresponding content-addressed URI.
+        """
+        pass
+
+    @abstractmethod
+    async def fetch_uri_contents(self, uri: URI) -> Union[bytes, URI]:
+        """
+        Fetch the contents stored at a URI.
+        """
+        pass
+
+

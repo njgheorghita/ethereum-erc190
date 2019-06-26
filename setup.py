@@ -56,6 +56,7 @@ setup(
     url='https://github.com/ethpm/py-ethpm',
     include_package_data=True,
     install_requires=[
+        'asks>=2.3.5,<3',
         'eth-utils>=1.6.0,<2',
         'ipfshttpclient>=0.4.12,<1',
         'jsonschema>=2.6.0,<3',

@@ -5,7 +5,7 @@ PACKAGE_NAME_REGEX = "[a-zA-Z][-_a-zA-Z0-9]{0,255}"
 
 DEFAULT_IPFS_BACKEND = "ethpm.backends.ipfs.InfuraIPFSBackend"
 
-IPFS_GATEWAY_PREFIX = "https://ipfs.io/ipfs/"
+IPFS_GATEWAY_PREFIX =  "/dns4/ipfs.io/tcp/443/https"
 
 # TODO Deprecate in favor of a better scheme for fetching registry URIs.
 # Please play nice and don't use this key for any shenanigans, thanks!

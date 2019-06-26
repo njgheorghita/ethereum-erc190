@@ -3,11 +3,13 @@ import os
 from pathlib import Path
 from typing import Dict, List, Type
 
+import asks
 from eth_utils import import_string, to_bytes
 import ipfshttpclient
+import trio
 
 from ethpm import ASSETS_DIR
-from ethpm.backends.base import BaseURIBackend
+from ethpm.backends.base import BaseURIBackend, AsyncBaseURIBackend
 from ethpm.constants import (
     DEFAULT_IPFS_BACKEND,
     INFURA_GATEWAY_MULTIADDR,
@@ -87,6 +89,89 @@ class IPFSOverHTTPBackend(BaseIPFSBackend):
             )
 
 
+#
+# Async
+#
+
+class AsyncBaseIPFSBackend(AsyncBaseURIBackend):
+    """
+    Base class for all URIs with an IPFS scheme.
+    """
+
+    def can_resolve_uri(self, uri: str) -> bool:
+        """
+        Return a bool indicating whether or not this backend
+        is capable of serving the content located at the URI.
+        """
+        return is_ipfs_uri(uri)
+
+    def can_translate_uri(self, uri: str) -> bool:
+        """
+        Return False. IPFS URIs cannot be used to point
+        to another content-addressed URI.
+        """
+        return False
+
+
+class AsyncLocal(AsyncBaseIPFSBackend):
+    @property
+    def base_uri(self):
+        return "http://127.0.0.1:8080/ipfs"
+
+    async def fetch_uri_contents(self, uri: str):
+        ipfs_hash = extract_ipfs_path_from_uri(uri)
+        try:
+            response = await asks.get(f"{self.base_uri}/{ipfs_hash}")            
+        except:
+            raise CannotHandleURI
+        contents = response.content
+
+        validation_hash = generate_file_hash(contents)
+        if validation_hash != ipfs_hash:
+            raise ValidationError(
+                f"Hashed IPFS contents retrieved from uri: {uri} do not match its content hash."
+            )
+        return contents
+
+
+class AsyncIPFS(AsyncBaseIPFSBackend):
+    @property
+    def base_uri(self):
+        return "https://ipfs.io/ipfs"
+
+    async def fetch_uri_contents(self, uri: str):
+        ipfs_hash = extract_ipfs_path_from_uri(uri)
+        response = await asks.get(f"{self.base_uri}/{ipfs_hash}")            
+        contents = response.content
+
+        validation_hash = generate_file_hash(contents)
+        if validation_hash != ipfs_hash:
+            raise ValidationError(
+                f"Hashed IPFS contents retrieved from uri: {uri} do not match its content hash."
+            )
+        return contents
+
+
+class AsyncInfura(AsyncBaseIPFSBackend):
+    @property
+    def base_uri(self) -> str:
+        return "https://ipfs.infura.io:5001/ipfs"
+
+    async def fetch_uri_contents(self, uri: str) -> bytes:
+        ipfs_hash = extract_ipfs_path_from_uri(uri)
+        response = await asks.get(f"{self.base_uri}/{ipfs_hash}")            
+        contents = response.content
+        if contents == b'bad request\n':
+            raise CannotHandleURI
+
+        validation_hash = generate_file_hash(contents)
+        if validation_hash != ipfs_hash:
+            raise ValidationError(
+                f"Hashed IPFS contents retrieved from uri: {uri} do not match its content hash."
+            )
+        return contents
+
+
 class IPFSGatewayBackend(IPFSOverHTTPBackend):
     """
     Backend class for all IPFS URIs served over the IPFS gateway.
@@ -96,7 +181,7 @@ class IPFSGatewayBackend(IPFSOverHTTPBackend):
     # https://discuss.ipfs.io/t/writeable-http-gateways/210
     @property
     def base_uri(self) -> str:
-        return "/dns4/ipfs.io/tcp/443/https"
+        return IPFS_GATEWAY_PREFIX
 
     def pin_assets(self, file_or_dir_path: Path) -> List[Dict[str, str]]:
         raise CannotHandleURI(
