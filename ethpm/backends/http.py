@@ -1,8 +1,5 @@
 import base64
 import json
-from pathlib import Path
-import shutil
-import tempfile
 
 from eth_typing import URI
 import requests
@@ -50,15 +47,3 @@ class GithubOverHTTPSBackend(BaseURIBackend):
         decoded_contents = base64.b64decode(contents["content"])
         validate_blob_uri_contents(decoded_contents, uri)
         return decoded_contents
-
-    def write_to_disk(self, uri: URI, target_path: Path) -> None:
-        contents = self.fetch_uri_contents(uri)
-        if target_path.exists():
-            raise CannotHandleURI(
-                f"Github blob: {uri} cannot be written to disk since target path ({target_path}) "
-                "already exists. Please provide a target_path that does not exist."
-            )
-        with tempfile.NamedTemporaryFile() as temp:
-            temp.write(contents)
-            temp.seek(0)
-            shutil.copyfile(temp.name, target_path)

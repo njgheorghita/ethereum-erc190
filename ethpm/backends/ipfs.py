@@ -1,8 +1,6 @@
 from abc import abstractmethod
 import os
 from pathlib import Path
-import shutil
-import tempfile
 from typing import Dict, List, Type
 
 from eth_typing import URI
@@ -51,18 +49,6 @@ class BaseIPFSBackend(BaseURIBackend):
         list containing pinned asset data.
         """
         pass
-
-    def write_to_disk(self, uri: URI, target_path: Path) -> None:
-        contents = self.fetch_uri_contents(uri)
-        if target_path.exists():
-            raise CannotHandleURI(
-                f"IPFS uri: {uri} cannot be written to disk since target path ({target_path}) "
-                "already exists. Please provide a target_path that does not exist."
-            )
-        with tempfile.NamedTemporaryFile() as temp:
-            temp.write(contents)
-            temp.seek(0)
-            shutil.copyfile(temp.name, target_path)
 
 
 class IPFSOverHTTPBackend(BaseIPFSBackend):

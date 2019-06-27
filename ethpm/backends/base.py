@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
+import shutil
+import tempfile
 from typing import Union
 
 from eth_typing import URI
+
+from ethpm.exceptions import CannotHandleURI
 
 
 class BaseURIBackend(ABC):
@@ -36,10 +40,18 @@ class BaseURIBackend(ABC):
         """
         pass
 
-    @abstractmethod
     def write_to_disk(self, uri: URI, target_path: Path) -> None:
         """
         Writes the contents of target URI to target path.
         Raises exception if target path exists.
         """
-        pass
+        contents = self.fetch_uri_contents(uri)
+        if target_path.exists():
+            raise CannotHandleURI(
+                f"Uri: {uri} cannot be written to disk since target path ({target_path}) "
+                "already exists. Please provide a target_path that does not exist."
+            )
+        with tempfile.NamedTemporaryFile() as temp:
+            temp.write(contents)
+            temp.seek(0)
+            shutil.copyfile(temp.name, target_path)
