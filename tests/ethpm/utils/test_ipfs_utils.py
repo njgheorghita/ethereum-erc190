@@ -119,7 +119,7 @@ def test_generate_file_hash(tmpdir, file_name, file_contents, expected):
 
 
 def test_generate_file_hash_for_large_files(tmp_path):
-    expected_links = (
+    pic_expected_links = (
         (b'QmZ5RgT3jJhRNMEgLSEsez9uz1oDnNeAysLLxRco8jz5Be', 262158),
         (b'QmUZvm5TertyZagJfoaw5E5DRvH6Ssu4Wsdfw69NHaNRTc', 262158),
         (b'QmTA3tDxTZn5DGaDshGTu9XHon3kcRt17dgyoomwbJkxvJ', 262158),
@@ -136,12 +136,32 @@ def test_generate_file_hash_for_large_files(tmp_path):
         (b'QmNsx32qEiEcHRL1TFcy2bPvwqjHZGp62mbcVa9FUpY9Z5', 262158),
         (b'QmVx2NfXEvHaS8uaRTYaF4ExeLaCSGpTSDhhYBEAembdbk', 69716),
     )
-    expected_root_hash = 'QmQgQUbBeMTnH1j3QWwNw9LkXjpWDJrjyGYfZpnPp8x5Lu'
-    test = Path(__file__).parent / 'pic.jpg'
-    ipfs_multihash = generate_links(test.read_bytes())
-    hashes = [(x.Hash, x.Tsize) for x in ipfs_multihash]
-    for x in expected_links:
-        assert x in hashes
+    txt_expected_links = (
+        (b'QmbYfXF7A7hgXUzEZSifji3D6Nf856kdK8Edu8n7knQSHr', 262158),
+        (b'QmZw2JEKQu8n5zisuU7JDAeWSUm2XvqjqV72bizCdDQUDM', 19278),
+    )
+    pic_expected_root_hash = 'QmQgQUbBeMTnH1j3QWwNw9LkXjpWDJrjyGYfZpnPp8x5Lu'
+    txt_exp_hash = 'QmegXsU7EopJ9EVj9ELwgHGE75Xke6FYBP84PaygiAsqB5'
+    pic_path = Path(__file__).parent / 'pic.jpg'
+    txt_path = Path(__file__).parent / 'txt.txt'
+    txt_multihash, txt_blocksizes = generate_links(txt_path.read_bytes())
+    pic_multihash, pic_blocksizes = generate_links(pic_path.read_bytes())
+    txt_hashes = [(x.Hash, x.Tsize) for x in txt_multihash]
+    pic_hashes = [(x.Hash, x.Tsize) for x in pic_multihash]
+    for x in txt_expected_links:
+        assert x in txt_hashes
+    for y in pic_expected_links:
+        assert y in pic_hashes
     # test works until here, where it has to calculate the root hash
-    root_hash = generate_file_hash(test.read_bytes())
-    assert root_hash == expected_root_hash
+    txt_root_hash = generate_file_hash(txt_path.read_bytes())
+    pic_root_hash = generate_file_hash(pic_path.read_bytes())
+    print("txt: actual / expected")
+    print(txt_root_hash)
+    print(txt_exp_hash)
+    print(f'txt blocksizes: count: {len(txt_blocksizes)}, set: {set(txt_blocksizes)}')
+    print("pic: actual / expected")
+    print(pic_root_hash)
+    print(pic_expected_root_hash)
+    print(f'pic blocksizes: count: {len(pic_blocksizes)}, set: {set(pic_blocksizes)}')
+    assert txt_root_hash == txt_exp_hash	
+    assert pic_root_hash == pic_expected_root_hash	

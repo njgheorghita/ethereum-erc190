@@ -9,7 +9,7 @@ from base58 import b58encode
 from eth_utils import to_text
 from google.protobuf.descriptor import Descriptor
 
-from ethpm._utils.protobuf.ipfs_file_pb2 import Data, PBNode
+from ethpm._utils.protobuf.ipfs_file_pb2 import Data, PBNode, PBLink
 from ethpm._utils.protobuf.unixfs_pb2 import Data as uData
 from ethpm._utils.protobuf.unixfs_pb2 import Metadata as uMetadata
 from ethpm._utils.protobuf.merkledag_pb2 import PBNode as uPBNode
@@ -110,11 +110,10 @@ def generate_file_hash(content_bytes: bytes) -> str:
 
 def serialize_chunks(file_bytes: bytes) -> Descriptor:
     file_size = len(file_bytes)
-    links = generate_links(file_bytes)
+    links, block_sizes = generate_links(file_bytes)
     data_protobuf = uData(
         Type=uData.DataType.Value("File"),
-        Data=b'',
-        filesize=file_size,
+        blocksizes=block_sizes,
     )
     data_protobuf_bytes = data_protobuf.SerializeToString()
     file_protobuf = uPBNode(Links=links, Data=data_protobuf_bytes)
@@ -131,11 +130,11 @@ def generate_links(content_bytes):
         gen_single_link(content_bytes, i)
         for i in range(0, len(content_bytes), IPFS_CHUNK_SIZE)
     ]
-    return links
+    block_sizes = [link.Tsize - 14 for link in links]
+    return links, block_sizes
 
 
 def gen_single_link(content_bytes, i):
     chunk = content_bytes[i : i + IPFS_CHUNK_SIZE]
     chunk_hash = generate_file_hash(chunk)
-    # not sure why adding 14 is necessary, but is required to make links match ls output size
-    return uPBLink(Hash=to_bytes(text=chunk_hash), Name="", Tsize=len(chunk) + 14)
+    return uPBLink(Hash=to_bytes(text=chunk_hash), Name=b'', Tsize=len(chunk) + 14)
