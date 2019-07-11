@@ -48,7 +48,7 @@ def validate_registry_uri_authority(auth: str) -> None:
         address, chain_id = auth.split(':')
     except ValueError:
         raise ValidationError(
-            f"{auth} is not a valid registry URI authority"
+            f"{auth} is not a valid registry URI authority. "
             "Please try again with a valid registry URI."
         )
 
@@ -61,7 +61,7 @@ def validate_registry_uri_authority(auth: str) -> None:
     if not is_supported_chain_id(to_int(text=chain_id)):
         raise ValidationError(
             f"Chain ID: {chain_id} is not supported. Supported chain ids include: "
-            "1 (mainnet), 3 (ropsten), 4 (rinkeby), 5 (goerli) and 42 (kovan)."
+            "1 (mainnet), 3 (ropsten), 4 (rinkeby), 5 (goerli) and 42 (kovan). "
             "Please try again with a valid registry URI."
         )
 
