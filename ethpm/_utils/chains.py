@@ -1,11 +1,12 @@
 import re
-from typing import Tuple
+from typing import Any, Tuple
 from urllib import parse
 
 from eth_typing import URI
-from eth_utils import add_0x_prefix, remove_0x_prefix
+from eth_utils import add_0x_prefix, is_integer, remove_0x_prefix
 from web3 import Web3
 
+from ethpm.constants import SUPPORTED_CHAIN_IDS
 
 def get_genesis_block_hash(web3: Web3) -> str:
     return web3.eth.getBlock(0)["hash"]
@@ -81,3 +82,12 @@ def create_BIP122_uri(
 
 def create_block_uri(chain_id: str, block_identifier: str) -> URI:
     return create_BIP122_uri(chain_id, "block", remove_0x_prefix(block_identifier))
+
+
+def is_supported_chain_id(chain_id: Any) -> bool:
+    if not is_integer(chain_id):
+        return False
+
+    if chain_id not in SUPPORTED_CHAIN_IDS.keys():
+        return False
+    return True

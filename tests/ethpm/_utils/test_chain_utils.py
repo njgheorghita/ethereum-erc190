@@ -1,6 +1,6 @@
 import pytest
 
-from ethpm._utils.chains import is_BIP122_block_uri, parse_BIP122_uri
+from ethpm._utils.chains import is_BIP122_block_uri, is_supported_chain_id, parse_BIP122_uri
 
 HASH_A = "0x1234567890123456789012345678901234567890123456789012345678901234"
 HASH_A_NO_PREFIX = "1234567890123456789012345678901234567890123456789012345678901234"
@@ -36,3 +36,23 @@ def test_parse_BIP122_uri(value, expected_resource_type):
     assert chain_id == HASH_A
     assert resource_type == expected_resource_type
     assert resource_identifier == HASH_B
+
+
+@pytest.mark.parametrize(
+    "chain_id,expected",
+    (
+        (1, True),
+        (3, True),
+        (4, True),
+        (5, True),
+        (42, True),
+        (2, False),
+        ("1", False),
+        ({}, False),
+        (None, False),
+        (False, False),
+    )
+)
+def test_is_supported_chain_id(chain_id, expected):
+    actual = is_supported_chain_id(chain_id)
+    assert actual is expected
